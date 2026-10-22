@@ -1,0 +1,9 @@
+{
+    "name": "tablon/anuncios",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "require": {}
+}
