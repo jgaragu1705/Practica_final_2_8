@@ -8,11 +8,12 @@ use App\Models\User;
 $db = new Database();
 $user = new User($db);
 
-// Antes de borrar: debería salir un array con los datos del usuario
-var_dump($user->getById(1));
-echo '<br>';
+// Inserto un usuario de prueba (la contraseña en claro es solo para probar)
+$user->insert([
+    'username' => 'iñaki',
+    'email'    => 'iñaki@gmail.com',
+    'password' => 'Loquesea1234',
+]);
 
-$user->delete(1);
-
-// Después de borrar: debería salir NULL
-var_dump($user->getById(1));
+// Compruebo que está: debería salir un array con 1 usuario
+var_dump($user->getAll());
