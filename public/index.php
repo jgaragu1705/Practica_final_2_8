@@ -8,7 +8,11 @@ use App\Models\User;
 $db = new Database();
 $user = new User($db);
 
-// La tabla users está vacía, así que los dos deberían dar NULL
-var_dump($user->getAll());
+// Antes de borrar: debería salir un array con los datos del usuario
+var_dump($user->getById(1));
 echo '<br>';
+
+$user->delete(1);
+
+// Después de borrar: debería salir NULL
 var_dump($user->getById(1));
