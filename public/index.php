@@ -3,13 +3,12 @@
 require __DIR__ . '/../vendor/autoload.php';
 
 use App\Core\Database;
+use App\Models\User;
 
 $db = new Database();
+$user = new User($db);
 
-// Prueba de fetchOne: una sola fila
-$fila = $db->fetchOne('SELECT 5 + :n AS suma', ['n' => 3]);
-echo 'fetchOne: ' . $fila['suma'] . '<br>';
-
-// Prueba de fetchAll: dos filas unidas con UNION
-$filas = $db->fetchAll('SELECT 1 AS numero UNION SELECT 2 AS numero');
-echo 'fetchAll devuelve ' . count($filas) . ' filas<br>';
+// La tabla users está vacía, así que los dos deberían dar NULL
+var_dump($user->getAll());
+echo '<br>';
+var_dump($user->getById(1));
