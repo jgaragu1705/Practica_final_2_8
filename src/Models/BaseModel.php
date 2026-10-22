@@ -50,7 +50,7 @@ abstract class BaseModel
     // por ejemplo: ['username' => 'javi', 'email' => 'javi@correo.com']
     public function insert(array $data): void
     {
-        // Aquí voy a ir guardando los nombres de las columnas y los marcadores
+        // Aquí voy guardando los nombres de las columnas y los marcadores
         $columnas = [];
         $marcadores = [];
 
@@ -67,6 +67,29 @@ abstract class BaseModel
             . ' VALUES (' . implode(', ', $marcadores) . ')';
 
         // Le paso $data tal cual como valores: sus claves coinciden con los marcadores
+        $this->db->query($sql, $data);
+    }
+
+    // Modifica el registro con ese id. $data tiene pares campo => valor
+    // con SOLO los campos que quiero cambiar, por ejemplo: ['username' => 'nuevo']
+    public function update(int $id, array $data): void
+    {
+        // Aquí voy guardando las parejas "campo = :campo"
+        $asignaciones = [];
+
+        foreach ($data as $campo => $valor) {
+            $asignaciones[] = $campo . ' = :' . $campo;   // por ejemplo: username = :username
+        }
+
+        // Queda algo como: UPDATE users SET username = :username, email = :email WHERE id = :id_registro
+        // OJO con el WHERE: sin él se modificarían TODAS las filas de la tabla
+        $sql = 'UPDATE ' . $this->table
+            . ' SET ' . implode(', ', $asignaciones)
+            . ' WHERE id = :id_registro';
+
+        // Añado el id al array de valores, con el nombre del marcador del WHERE
+        $data['id_registro'] = $id;
+
         $this->db->query($sql, $data);
     }
 }
