@@ -1,23 +1,34 @@
 <?php
 
-require __DIR__ . '/../vendor/autoload.php';
+// Cargo el autoload de Composer para que PHP encuentre mis clases solo
+require_once __DIR__ . '/../vendor/autoload.php';
 
-use App\Core\Database;
-use App\Models\User;
+use App\Core\Router;
+use App\Controllers\AuthController;
 
-$db = new Database();
-$user = new User($db);
+// Activo las sesiones. Se hace una sola vez, aquí arriba, antes de escribir nada en pantalla
+session_start();
 
-// Le pongo al usuario 2 la contraseña "1234", pero guardada con hash
-$user->update(2, ['password' => password_hash('1234', PASSWORD_DEFAULT)]);
+// Creo el token CSRF una sola vez por sesión (lo usaremos en el Paso 6)
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 
-// Caso 1: email y contraseña correctos -> debería salir int(2)
-var_dump($user->findByEmail('iñaki@gmail.com', '1234'));
-echo '<br>';
+$router = new Router();
 
-// Caso 2: contraseña incorrecta -> debería salir NULL
-var_dump($user->findByEmail('iñaki@gmail.com', 'mala'));
-echo '<br>';
+// Rutas de la aplicación: URL => [controlador, método]
+$router->get('/login', [AuthController::class, 'showLoginForm']);
 
-// Caso 3: email que no existe -> debería salir NULL
-var_dump($user->findByEmail('noexiste@correo.com', '1234'));
+// Saco solo la parte de la URL sin el ?id=... (por ejemplo "/login")
+$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
+// Saco el tipo de petición: GET o POST
+$method = $_SERVER['REQUEST_METHOD'];
+
+// Si entran a la raíz "/", los mando a /login (más adelante será /posts)
+if ($path === '/') {
+    header('Location: /login');
+    exit;
+}
+
+// Le paso la petición al router para que haga su trabajo
+$router->dispatch($method, $path);

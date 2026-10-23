@@ -1,0 +1,6 @@
+# Activa la reescritura de URLs
+RewriteEngine On
+# Condición: solo si lo que piden NO es un archivo real (una imagen, un css...)
+RewriteCond %{REQUEST_FILENAME} !-f
+# Entonces mando la petición a index.php, conservando lo que venga después del ? (QSA)
+RewriteRule ^ index.php [QSA,L]
