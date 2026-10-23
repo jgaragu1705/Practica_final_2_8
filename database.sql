@@ -1,53 +1,165 @@
--- Primero borro las tablas si ya existen, así puedo importar este archivo
--- las veces que quiera sin que me dé error de "la tabla ya existe".
--- OJO con el orden: tengo que borrar primero comments, luego posts y al final users.
--- Si borrara users antes, fallaría, porque posts y comments dependen de ella.
-DROP TABLE IF EXISTS comments;
-DROP TABLE IF EXISTS posts;
-DROP TABLE IF EXISTS users;
+-- phpMyAdmin SQL Dump
+-- version 5.2.3
+-- https://www.phpmyadmin.net/
+--
+-- Servidor: db
+-- Tiempo de generación: 23-10-2026 a las 18:54:51
+-- Versión del servidor: 8.4.11
+-- Versión de PHP: 8.3.33
 
--- TABLA USERS: aquí guardo a las personas que se registran
-CREATE TABLE users (
-    -- id: el número que identifica a cada usuario. AUTO_INCREMENT hace que
-    -- MySQL lo ponga solo (1, 2, 3...) y PRIMARY KEY quiere decir que no se puede repetir
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL,      -- NOT NULL = este campo es obligatorio
-    -- UNIQUE hace que no puedan existir dos usuarios con el mismo email
-    email VARCHAR(100) NOT NULL UNIQUE,
-    -- Aquí NO va la contraseña tal cual, va el hash que genera password_hash().
-    -- Pongo 255 porque ese hash es largo y con menos podría cortarse
-    password VARCHAR(255) NOT NULL,
-    -- Se rellena solo con la fecha y hora en que se crea el usuario
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
--- (InnoDB es el tipo de tabla que permite las claves foráneas, y utf8mb4
--- sirve para poder guardar tildes, ñ y emojis sin que salgan símbolos raros)
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
 
--- TABLA POSTS: los anuncios que publica la gente
-CREATE TABLE posts (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    -- user_id guarda el id del usuario que escribió el anuncio.
-    -- Así sé de quién es cada post (y luego comprobar si puede editarlo o borrarlo)
-    user_id INT NOT NULL,
-    title VARCHAR(150) NOT NULL,
-    body TEXT NOT NULL,                 -- TEXT es para textos largos, VARCHAR se queda corto
-    category VARCHAR(50) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    -- CLAVE FORÁNEA: obliga a que user_id sea el id de un usuario que existe de verdad.
-    -- ON DELETE CASCADE: si se borra el usuario, sus posts se borran solos
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- TABLA COMMENTS: los comentarios dentro de cada anuncio
-CREATE TABLE comments (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    post_id INT NOT NULL,               -- en qué anuncio está este comentario
-    user_id INT NOT NULL,               -- quién lo escribió
-    body TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    -- Dos claves foráneas porque el comentario está unido a DOS cosas:
-    -- si se borra el post, se borran sus comentarios;
-    -- si se borra el usuario, se borran los comentarios que escribió
-    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Base de datos: `practica`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `comments`
+--
+
+DROP TABLE IF EXISTS `comments`;
+CREATE TABLE `comments` (
+  `id` int NOT NULL,
+  `post_id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `body` text NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Volcado de datos para la tabla `comments`
+--
+
+INSERT INTO `comments` (`id`, `post_id`, `user_id`, `body`, `created_at`) VALUES
+(1, 1, 2, 'Va a ganar este año Marc Márquez.', '2026-10-23 18:45:15'),
+(2, 4, 1, 'Este año se romperán varios récords.', '2026-10-23 18:49:57'),
+(3, 1, 1, 'Definitivamente si va a ganar Marc Márquez.', '2026-10-23 18:50:22');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `posts`
+--
+
+DROP TABLE IF EXISTS `posts`;
+CREATE TABLE `posts` (
+  `id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `title` varchar(150) NOT NULL,
+  `body` text NOT NULL,
+  `category` varchar(50) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Volcado de datos para la tabla `posts`
+--
+
+INSERT INTO `posts` (`id`, `user_id`, `title`, `body`, `category`, `created_at`) VALUES
+(1, 1, 'Mundial de Motos', 'Clasificación del mundial de MotoGP.', 'Motos', '2026-10-23 18:41:04'),
+(2, 1, 'Formula1', 'Clasificación del mundial de Fórmula1.', 'Coches', '2026-10-23 18:41:39'),
+(3, 1, 'La Liga', 'Clasificación del La Liga Española.', 'Fútbol', '2026-10-23 18:42:26'),
+(4, 2, 'Campeonato de España', 'Clasificación del campeonato de España de natación.', 'Natación', '2026-10-23 18:44:27');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `users`
+--
+
+DROP TABLE IF EXISTS `users`;
+CREATE TABLE `users` (
+  `id` int NOT NULL,
+  `username` varchar(50) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Volcado de datos para la tabla `users`
+--
+
+INSERT INTO `users` (`id`, `username`, `email`, `password`, `created_at`) VALUES
+(1, 'javi', 'javi@gmail.com', '$2y$10$/kBVuZOC3MgFGZKyCydJY.s8ChQ.G8pxXMsc8TrNL/UyiO5wo5Jm.', '2026-10-23 18:39:09'),
+(2, 'pedro', 'pedro@gmail.com', '$2y$10$Uxx983TGnl1ts3xDw3.qd./o.d8IKQM.dzaQ0H1jotGPlvK7vGpRO', '2026-10-23 18:39:51');
+
+--
+-- Índices para tablas volcadas
+--
+
+--
+-- Indices de la tabla `comments`
+--
+ALTER TABLE `comments`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `post_id` (`post_id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
+-- Indices de la tabla `posts`
+--
+ALTER TABLE `posts`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
+-- Indices de la tabla `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`);
+
+--
+-- AUTO_INCREMENT de las tablas volcadas
+--
+
+--
+-- AUTO_INCREMENT de la tabla `comments`
+--
+ALTER TABLE `comments`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT de la tabla `posts`
+--
+ALTER TABLE `posts`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT de la tabla `users`
+--
+ALTER TABLE `users`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- Restricciones para tablas volcadas
+--
+
+--
+-- Filtros para la tabla `comments`
+--
+ALTER TABLE `comments`
+  ADD CONSTRAINT `comments_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `comments_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `posts`
+--
+ALTER TABLE `posts`
+  ADD CONSTRAINT `posts_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
