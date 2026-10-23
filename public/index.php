@@ -19,6 +19,7 @@ $router = new Router();
 // Rutas de la aplicación: URL => [controlador, método]
 $router->get('/login', [AuthController::class, 'showLoginForm']);
 $router->get('/register', [AuthController::class, 'showRegisterForm']);
+$router->post('/register', [AuthController::class, 'register']);   // NUEVA: recibe el formulario
 
 // Saco solo la parte de la URL sin el ?id=... (por ejemplo "/login")
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';

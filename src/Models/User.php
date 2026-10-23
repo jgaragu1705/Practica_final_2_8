@@ -37,4 +37,16 @@ class User extends BaseModel
         // El email existía pero la contraseña no coincide
         return null;
     }
+
+    // NUEVO: dice si ya hay algún usuario registrado con ese email (true o false)
+    public function emailExists(string $email): bool
+    {
+        $fila = $this->db->fetchOne(
+            'SELECT id FROM users WHERE email = :email',
+            ['email' => $email]
+        );
+
+        // Si fetchOne devuelve null es que no hay nadie con ese email
+        return $fila !== null;
+    }
 }
