@@ -2,14 +2,16 @@
 
 namespace App\Controllers;
 
+use App\Core\BaseController;
 use App\Core\Database;
 use App\Models\Comment;
 use App\Models\Post;
 
-class PostController
+// extends BaseController: heredo requireLogin() y checkCsrfToken()
+class PostController extends BaseController
 {
     private Post $postModel;
-    private Comment $commentModel;   // NUEVO: para cargar los comentarios de cada anuncio
+    private Comment $commentModel;   // para cargar los comentarios de cada anuncio
 
     // Igual que en AuthController: el router no le pasa nada, así que lo creo aquí
     public function __construct()
@@ -47,7 +49,7 @@ class PostController
             return;
         }
 
-        // NUEVO: los comentarios de este anuncio (array vacío si no tiene ninguno)
+        // Los comentarios de este anuncio (array vacío si no tiene ninguno)
         $comments = $this->commentModel->findByPost($id) ?? [];
 
         require __DIR__ . '/../Views/posts/show.php';
@@ -65,6 +67,9 @@ class PostController
     // Recibe el formulario de create() (llega por POST) y guarda el anuncio
     public function store(): void
     {
+        // Lo primero de todo: compruebo el token CSRF
+        $this->checkCsrfToken();
+
         // Hay que proteger también esta acción: alguien podría mandar el POST
         // a mano sin haber pasado por el formulario
         $this->requireLogin('Tienes que iniciar sesión para publicar un anuncio.');
@@ -110,6 +115,9 @@ class PostController
     // Recibe el formulario de edit() (llega por POST) y modifica el anuncio
     public function update(): void
     {
+        // Lo primero de todo: compruebo el token CSRF
+        $this->checkCsrfToken();
+
         // El id viene de un campo oculto del formulario, así que HAY que volver a comprobar
         // que el anuncio es mío: ese campo se puede cambiar desde el navegador
         $id = (int) ($_POST['id'] ?? 0);
@@ -141,6 +149,9 @@ class PostController
     // Borra un anuncio (llega por POST desde el botón de la vista de detalle)
     public function destroy(): void
     {
+        // Lo primero de todo: compruebo el token CSRF
+        $this->checkCsrfToken();
+
         $id = (int) ($_POST['id'] ?? 0);
 
         // Si el anuncio no es mío, findOwnPost corta aquí y no llega al delete
@@ -153,22 +164,12 @@ class PostController
         exit;
     }
 
-    // Si no hay nadie logueado, lo mando al login con un mensaje y paro la ejecución
-    private function requireLogin(string $mensaje): void
-    {
-        if (!isset($_SESSION['user_id'])) {
-            $_SESSION['error'] = $mensaje;
-            header('Location: /login');
-            exit;   // sin este exit, el código de la acción seguiría ejecutándose
-        }
-    }
-
     // AUTORIZACIÓN. Devuelve el anuncio solo si hay alguien logueado,
     // el anuncio existe y el usuario logueado es su autor. Si no, responde con
     // el error que toque y PARA (exit), así quien la llame no necesita comprobar nada más.
     private function findOwnPost(int $id): array
     {
-        // 1) ¿Está logueado?
+        // 1) ¿Está logueado? (requireLogin lo heredo de BaseController)
         $this->requireLogin('Tienes que iniciar sesión para hacer esto.');
 
         // 2) ¿Existe el anuncio?

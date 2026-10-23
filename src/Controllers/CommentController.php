@@ -2,11 +2,13 @@
 
 namespace App\Controllers;
 
+use App\Core\BaseController;
 use App\Core\Database;
 use App\Models\Comment;
 use App\Models\Post;
 
-class CommentController
+// extends BaseController: heredo requireLogin() y checkCsrfToken()
+class CommentController extends BaseController
 {
     private Comment $commentModel;
     private Post $postModel;   // lo necesito para comprobar que el anuncio existe
@@ -21,12 +23,11 @@ class CommentController
     // Recibe el formulario de comentar (llega por POST) y guarda el comentario
     public function store(): void
     {
+        // Lo primero de todo: compruebo el token CSRF
+        $this->checkCsrfToken();
+
         // Solo pueden comentar los usuarios logueados
-        if (!isset($_SESSION['user_id'])) {
-            $_SESSION['error'] = 'Tienes que iniciar sesión para comentar.';
-            header('Location: /login');
-            exit;
-        }
+        $this->requireLogin('Tienes que iniciar sesión para comentar.');
 
         // El id del anuncio viene del formulario (campo oculto). Se puede manipular,
         // así que compruebo que exista de verdad.

@@ -2,10 +2,12 @@
 
 namespace App\Controllers;
 
+use App\Core\BaseController;
 use App\Core\Database;
 use App\Models\User;
 
-class AuthController
+// extends BaseController: heredo requireLogin() y checkCsrfToken()
+class AuthController extends BaseController
 {
     // Aquí guardo el modelo de usuarios para usarlo en todos los métodos
     private User $userModel;
@@ -33,6 +35,9 @@ class AuthController
     // Recibe los datos del formulario de registro (llega por POST) y crea el usuario
     public function register(): void
     {
+        // Lo primero de todo: compruebo el token CSRF
+        $this->checkCsrfToken();
+
         // Recojo los datos. trim quita espacios al principio y al final.
         // El ?? '' hace que, si el campo no llega, valga '' en vez de dar error.
         $username = trim($_POST['username'] ?? '');
@@ -74,9 +79,12 @@ class AuthController
         exit;
     }
 
-    // NUEVO: recibe el formulario de login (llega por POST)
+    // Recibe el formulario de login (llega por POST)
     public function login(): void
     {
+        // Lo primero de todo: compruebo el token CSRF
+        $this->checkCsrfToken();
+
         $email = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
 
@@ -102,16 +110,19 @@ class AuthController
         $_SESSION['user_id'] = $userId;
         $_SESSION['user_email'] = $usuario['email'];
 
-        // Todavía no tenemos la página de anuncios, así que vuelvo al login
-        // (más adelante redirigiré a /posts). La cabecera ya mostrará mi email.
+        // Ahora que ya existe el listado de anuncios, voy allí
         $_SESSION['success'] = 'Has iniciado sesión correctamente.';
-        header('Location: /login');
+        header('Location: /posts');
         exit;
     }
 
-    // NUEVO: cierra la sesión (llega por POST desde el botón de la cabecera)
+    // Cierra la sesión (llega por POST desde el botón de la cabecera)
     public function logout(): void
     {
+        // Lo primero de todo: compruebo el token CSRF
+        // (si no, cualquier web podría cerrarte la sesión sin que lo pidieras)
+        $this->checkCsrfToken();
+
         // Borra todos los datos de la sesión (el id, el email...)
         session_destroy();
 
