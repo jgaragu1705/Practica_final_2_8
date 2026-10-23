@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tablón de anuncios</title>
+</head>
+<body>
+    <?php require __DIR__ . '/../partials/header.php'; ?>
+
+    <h1>Tablón de anuncios</h1>
+
+    <?php if (!empty($_SESSION['success'])): ?>
+        <p style="color: green;"><?= htmlspecialchars($_SESSION['success']) ?></p>
+        <?php unset($_SESSION['success']); ?>
+    <?php endif; ?>
+
+    <?php if (!empty($_SESSION['error'])): ?>
+        <p style="color: red;"><?= htmlspecialchars($_SESSION['error']) ?></p>
+        <?php unset($_SESSION['error']); ?>
+    <?php endif; ?>
+
+    <?php // El buscador va por GET: así la búsqueda queda en la URL (/posts?q=libro) ?>
+    <form action="/posts" method="get">
+        <?php // value=... mantiene lo que se buscó dentro de la caja. htmlspecialchars SIEMPRE que se imprime algo del usuario ?>
+        <input type="text" name="q" placeholder="Buscar por título o categoría" value="<?= htmlspecialchars($search) ?>">
+        <button type="submit">Buscar</button>
+    </form>
+
+    <?php if (empty($posts)): ?>
+        <p>No hay anuncios que mostrar.</p>
+    <?php else: ?>
+        <?php foreach ($posts as $post): ?>
+            <article>
+                <h2><?= htmlspecialchars($post['title']) ?></h2>
+                <p>
+                    Categoría: <?= htmlspecialchars($post['category']) ?> |
+                    Publicado por <?= htmlspecialchars($post['author']) ?> |
+                    <?= htmlspecialchars($post['created_at']) ?>
+                </p>
+                <p><?= htmlspecialchars($post['body']) ?></p>
+            </article>
+            <hr>
+        <?php endforeach; ?>
+    <?php endif; ?>
+</body>
+</html>

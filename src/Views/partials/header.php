@@ -1,5 +1,7 @@
 <?php // Cabecera común. La incluyo con require en cada vista, justo después de <body> ?>
 <nav>
+    <a href="/posts">Anuncios</a> |
+
     <?php if (isset($_SESSION['user_id'])): ?>
         <?php // Hay alguien logueado: muestro su email y el botón de cerrar sesión ?>
         <span>Conectado como <?= htmlspecialchars($_SESSION['user_email']) ?></span>
