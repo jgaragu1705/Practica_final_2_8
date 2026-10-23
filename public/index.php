@@ -26,8 +26,9 @@ $router->post('/logout', [AuthController::class, 'logout']);
 
 // Rutas de anuncios
 $router->get('/posts', [PostController::class, 'index']);
-$router->get('/posts/create', [PostController::class, 'create']);   // NUEVA: formulario
-$router->post('/posts', [PostController::class, 'store']);          // NUEVA: guardar
+$router->get('/posts/show', [PostController::class, 'show']);       // NUEVA: detalle
+$router->get('/posts/create', [PostController::class, 'create']);
+$router->post('/posts', [PostController::class, 'store']);
 
 // Saco solo la parte de la URL sin el ?id=... (por ejemplo "/login")
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';

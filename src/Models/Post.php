@@ -40,4 +40,16 @@ class Post extends BaseModel
 
         return $this->db->fetchAll($sql, $params);
     }
+
+    // NUEVO: devuelve UN anuncio con el nombre de su autor, o null si no existe
+    public function findWithAuthor(int $id): ?array
+    {
+        return $this->db->fetchOne(
+            'SELECT posts.*, users.username AS author
+             FROM posts
+             JOIN users ON posts.user_id = users.id
+             WHERE posts.id = :id',
+            ['id' => $id]
+        );
+    }
 }

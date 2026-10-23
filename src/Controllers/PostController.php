@@ -29,6 +29,24 @@ class PostController
         require __DIR__ . '/../Views/posts/index.php';
     }
 
+    // NUEVO: muestra un solo anuncio. El id llega en la URL: /posts/show?id=3
+    public function show(): void
+    {
+        // (int) convierte a número: si ponen letras, queda 0 y no se encuentra nada
+        $id = (int) ($_GET['id'] ?? 0);
+
+        $post = $this->postModel->findWithAuthor($id);
+
+        // Si no existe un anuncio con ese id, error 404 y paro
+        if ($post === null) {
+            http_response_code(404);
+            echo 'Anuncio no encontrado.';
+            return;
+        }
+
+        require __DIR__ . '/../Views/posts/show.php';
+    }
+
     // Muestra el formulario para crear un anuncio nuevo
     public function create(): void
     {

@@ -37,7 +37,8 @@
     <?php else: ?>
         <?php foreach ($posts as $post): ?>
             <article>
-                <h2><?= htmlspecialchars($post['title']) ?></h2>
+                <?php // El id es un número que viene de la base de datos, pero lo convierto a (int) igualmente por seguridad ?>
+                <h2><a href="/posts/show?id=<?= (int) $post['id'] ?>"><?= htmlspecialchars($post['title']) ?></a></h2>
                 <p>
                     Categoría: <?= htmlspecialchars($post['category']) ?> |
                     Publicado por <?= htmlspecialchars($post['author']) ?> |
