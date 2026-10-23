@@ -73,4 +73,51 @@ class AuthController
         header('Location: /login');
         exit;
     }
+
+    // NUEVO: recibe el formulario de login (llega por POST)
+    public function login(): void
+    {
+        $email = trim($_POST['email'] ?? '');
+        $password = $_POST['password'] ?? '';
+
+        // findByEmail me devuelve el id si email y contraseña son correctos, o null si no
+        $userId = $this->userModel->findByEmail($email, $password);
+
+        if ($userId === null) {
+            // Mismo mensaje si falla el email o la contraseña, para no dar pistas
+            $_SESSION['error'] = 'Email o contraseña incorrectos.';
+            header('Location: /login');
+            exit;
+        }
+
+        // Login correcto. Cambio el identificador de sesión por uno nuevo
+        // (evita que alguien con el identificador antiguo herede esta sesión)
+        session_regenerate_id(true);
+
+        // Saco el email tal y como está guardado en la base de datos
+        $usuario = $this->userModel->getById($userId);
+
+        // Guardo en la sesión quién es. A partir de ahora, en cualquier página,
+        // si existe $_SESSION['user_id'] sé que hay alguien logueado y quién es.
+        $_SESSION['user_id'] = $userId;
+        $_SESSION['user_email'] = $usuario['email'];
+
+        // Todavía no tenemos la página de anuncios, así que vuelvo al login
+        // (más adelante redirigiré a /posts). La cabecera ya mostrará mi email.
+        $_SESSION['success'] = 'Has iniciado sesión correctamente.';
+        header('Location: /login');
+        exit;
+    }
+
+    // NUEVO: cierra la sesión (llega por POST desde el botón de la cabecera)
+    public function logout(): void
+    {
+        // Borra todos los datos de la sesión (el id, el email...)
+        session_destroy();
+
+        // En la siguiente petición, index.php abrirá una sesión nueva
+        // y creará un token CSRF nuevo
+        header('Location: /login');
+        exit;
+    }
 }

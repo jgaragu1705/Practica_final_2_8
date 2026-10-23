@@ -6,6 +6,8 @@
     <title>Registro</title>
 </head>
 <body>
+    <?php require __DIR__ . '/../partials/header.php'; ?>
+
     <h1>Crear cuenta</h1>
 
     <?php if (!empty($_SESSION['error'])): ?>

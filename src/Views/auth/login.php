@@ -6,6 +6,8 @@
     <title>Iniciar sesión</title>
 </head>
 <body>
+    <?php require __DIR__ . '/../partials/header.php'; ?>
+
     <h1>Iniciar sesión</h1>
 
     <?php // Si el controlador dejó un mensaje de error en la sesión, lo muestro y lo borro ?>
