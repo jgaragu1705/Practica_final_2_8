@@ -20,6 +20,11 @@
         <?php unset($_SESSION['error']); ?>
     <?php endif; ?>
 
+    <?php // Solo muestro el enlace de publicar si hay alguien logueado ?>
+    <?php if (isset($_SESSION['user_id'])): ?>
+        <p><a href="/posts/create">➕ Nuevo anuncio</a></p>
+    <?php endif; ?>
+
     <?php // El buscador va por GET: así la búsqueda queda en la URL (/posts?q=libro) ?>
     <form action="/posts" method="get">
         <?php // value=... mantiene lo que se buscó dentro de la caja. htmlspecialchars SIEMPRE que se imprime algo del usuario ?>
