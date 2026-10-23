@@ -45,6 +45,41 @@
         </p>
     <?php endif; ?>
 
+    <hr>
+
+    <?php // NUEVO: sección de comentarios ?>
+    <h2>Comentarios (<?= count($comments) ?>)</h2>
+
+    <?php if (empty($comments)): ?>
+        <p>Todavía no hay comentarios.</p>
+    <?php else: ?>
+        <?php foreach ($comments as $comment): ?>
+            <div>
+                <p>
+                    <strong><?= htmlspecialchars($comment['author']) ?></strong>
+                    <small>(<?= htmlspecialchars($comment['created_at']) ?>)</small>
+                </p>
+                <p><?= htmlspecialchars($comment['body']) ?></p>
+            </div>
+            <hr>
+        <?php endforeach; ?>
+    <?php endif; ?>
+
+    <?php // El formulario solo se muestra a quien está logueado ?>
+    <?php if (isset($_SESSION['user_id'])): ?>
+        <h3>Añadir un comentario</h3>
+        <form action="/comments" method="post">
+            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+            <?php // Le digo al servidor en qué anuncio estoy comentando ?>
+            <input type="hidden" name="post_id" value="<?= (int) $post['id'] ?>">
+
+            <textarea name="body" rows="4" cols="50" maxlength="1000" required></textarea><br>
+            <button type="submit">Comentar</button>
+        </form>
+    <?php else: ?>
+        <p><a href="/login">Inicia sesión</a> para dejar un comentario.</p>
+    <?php endif; ?>
+
     <p><a href="/posts">← Volver al listado</a></p>
 </body>
 </html>
