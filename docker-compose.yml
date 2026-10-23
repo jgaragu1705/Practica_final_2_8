@@ -5,6 +5,12 @@ services:
     build: .
     ports:
       - "8080:80"
+    environment:
+      # Composer avisa si se ejecuta como root dentro de Docker; con esto se calla
+      COMPOSER_ALLOW_SUPERUSER: 1
+    # Antes de arrancar Apache, instalo lo de Composer (genera vendor/autoload.php).
+    # Así el proyecto funciona aunque se entregue sin la carpeta vendor.
+    command: sh -c "composer install --no-interaction && apache2-foreground"
     volumes:
       # Compartimos TODO el proyecto con el contenedor
       - .:/var/www/html
@@ -21,6 +27,9 @@ services:
       MYSQL_PASSWORD: dev
     volumes:
       - db_data:/var/lib/mysql
+      # MySQL ejecuta todo lo que haya en esta carpeta la PRIMERA vez que se crea la base de datos
+      # (:ro = solo lectura, el contenedor no puede modificar mi archivo)
+      - ./database.sql:/docker-entrypoint-initdb.d/database.sql:ro
 
   # Panel web para ver la base de datos
   phpmyadmin:
